@@ -1,0 +1,16 @@
+.mainbox {
+  margin-bottom: 5px;
+  border: 2px solid;
+}
+
+.innerbox {
+  padding-top:0px;
+  padding-bottom: 0px;
+}
+
+.valuebox {
+  padding-top:5px;
+  padding-bottom: 5px;
+  border: 1px solid;
+  border-bottom: 0px;
+}

@@ -5,9 +5,6 @@ var Changeset = require('../models/changesets');
 /* GET home page. */
 router.get('/', function(req, res) {
   if (!req.user) return res.redirect('/login');
-  Changeset.query().select().limit(1).then(function (resp) {
-    console.log(resp);
-  });
   res.render('./home/index', { user: req.user, title: 'Express' });
 });
 
