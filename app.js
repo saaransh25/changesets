@@ -7,6 +7,11 @@ var bodyParser = require('body-parser');
 var app = express();
 var expressLayouts = require('express-ejs-layouts');
 
+// Using passportjs for implementing authentication
+var passport = require('passport');
+var session = require('express-session');
+var flash = require('connect-flash');
+
 //Bookshelf.js ORM for MySQL setup
 var knex=require('knex') ({
   client: 'mysql',
@@ -42,8 +47,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(expressLayouts);
 
-var routes = require('./routes/home/index');
+// For authentication
+app.use(session({
+  secret: process.env.EXPRESS_SECRET || 'Random String',
+  key: 'sid',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {secure: false},
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+var auth_routes = require('./routes/auth_routes');
+var routes = require('./routes/index');
+
+
 app.use('/', routes);
+app.use('/',auth_routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
