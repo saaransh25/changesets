@@ -4,15 +4,34 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
+var expressLayouts = require('express-ejs-layouts');
 
+//Bookshelf.js ORM for MySQL setup
+var knex=require('knex') ({
+  client: 'mysql',
+  connection: {
+    host     : '127.0.0.1',
+    user     : 'root',
+    database : 'crunchbase',
+    port     :  '3306',
+    charset  : 'utf8'
+  }  
+})
+
+Bookshelf = require('bookshelf')(knex);
+Bookshelf.plugin('registry');
+
+app.set('bookshelf',Bookshelf);
+app.set('knex',knex);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('layout','./layout/layout.ejs');
+app.set("layout extractScripts", true);
+
+//Putting this here to avoid circular dependencies
+module.exports = app;
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -21,9 +40,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(expressLayouts);
 
+var routes = require('./routes/home/index');
 app.use('/', routes);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -56,5 +76,9 @@ app.use(function(err, req, res, next) {
     });
 });
 
+var http = require('http').Server(app);
+var httpport = process.env.PORT || 76;
 
-module.exports = app;
+http.listen(httpport, function(){
+    console.log('listening on *:'+httpport);
+});
